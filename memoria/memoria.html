@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Memória</title>
+
+  <link rel="stylesheet" href="./memoria/memoria.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="./memoria/memoria-game.js"></script>
+  
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+
+
+  <script src="./memoria/memoria.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="row mt-3">
+
+      <div class="col-12 col-lg-4 d-flex justify-content-center">
+        <div class="form-floating  ">
+          <input disabled id="player" type="text"
+            class="form-control-lg text-center border border-danger rounded-pill border-5 ">
+          <label for="player">Player</label>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-4 d-flex justify-content-center ps-3 pe-3">
+        <input readonly class="form-control-lg text-center border border-danger rounded-pill border-5" id="timer"
+          type="text" value="00:00">
+      </div>
+
+      <div class="col-12 col-lg-4 d-flex justify-content-center">
+        <div class="form-floating">
+          <input disabled id="current-player" type="text"
+            class="form-control-lg text-center border border-danger rounded-pill border-5">
+          <label for="player">Current player</label>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="row mt-1">
+      <div class="col-4">
+      </div>
+      <div class="col-4 d-flex justify-content-center">
+        <button id="buttonPlay" type="button" class="btn btn-danger border border-danger rounded-pill">Play</button>
+        <button id="buttonPause" type="button" class="btn btn-secondary ms-1 me-1 border border-secondary rounded-pill">Pause</button>
+        <button id="buttonStop" type="button" class="btn btn-dark border border-dark rounded-pill">Stop</button>
+      </div>
+      <div class="col-4">
+      </div>
+    </div>
+
+  </div>
+
+  <div id="memoria-setup">
+
+    <div class="row mt-5 ">
+      <div class="col-1">
+      </div>
+      <div class="col-10  p-3 ps-5 pe-5 border border-danger rounded-pill border-5">
+        <label for="new-player" class="form-label">New player:</label>
+        <div>
+          <input type="text" class="form-control form-control-lg" id="new-player">
+        </div>
+      </div>
+      <div class="col-1">
+      </div>
+    </div>
+
+    <div class="row mt-5 ">
+      <div class="col-1">
+      </div>
+      <div class="col-10  p-3 ps-5 pe-5 border border-danger rounded-pill border-5">
+        <label class="form-check-label" for="gameSize">
+          Existing Player:
+        </label>
+        <select id="select-player" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
+          <option value="0" disabled selected>Select an existing user</option>
+          <option value="1">carmanoli</option>
+          <option value="2">Oliveira</option>
+          <option value="3">Carlos</option>
+        </select>
+      </div>
+      <div class="col-1">
+      </div>
+    </div>
+
+    <div class="row mt-5 ">
+      <div class="col-1">
+      </div>
+      <div class="col-10  p-3 ps-5 pe-5 border border-danger rounded-pill border-5">
+        <label class="form-check-label" for="gameSize">
+          Nível de dificuldade:
+        </label>
+        <select id="gameSize" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
+          <option value="12" selected>Matriz 3x4</option>
+          <option value="16">Matriz 4x4</option>
+          <option value="20">Matriz 5x4</option>
+        </select>
+      </div>
+      <div class="col-1">
+      </div>
+    </div>
+
+    <!-- http://jsfiddle.net/huanlin/mgvrc/ -->
+    <style>
+      /* HIDE RADIO */
+      [type=radio] { 
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      /* IMAGE STYLES */
+      [type=radio] + img {
+        cursor: pointer;
+      }
+
+      /* CHECKED STYLES */
+      [type=radio]:checked + img {
+        outline: 2px solid #f00;
+      }
+    </style>
+
+    <div class="row mt-5">
+      <div class="col-1">
+      </div>
+      <div class="col-10  ">
+      <form id="select-deck">
+        <div class="row p-3 border border-danger rounded-pill border-5">
+          <div class="col-5 text-center">
+            <label class="justify-content-center">
+              <input type="radio" name="option-deck" value="poker" checked>
+              <img src="./memoria/carddeck/poker/backcard.png" style="height:100px" alt="poker">
+            </label>
+          </div>
+          <div class="col-2">
+          </div>
+          <div class="col-5 text-center">
+            <label class="text-center">
+              <input type="radio" name="option-deck" value="ldr" >
+              <img src="./memoria/carddeck/ldr/backcard.png" style="height:100px" alt="ldr">
+            </label>
+          </div>
+        </div>
+      </form>
+      </div>
+      <div class="col-1">
+      </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class="row mt-5">
+      <div class="col-1">
+      </div>
+      <div style="border-radius: 75px;" class="col-10  p-3 border border-danger border-5">
+        <canvas id="memoria-chart" style="width:100%;"></canvas>
+      </div>
+      <div class="col-1">
+      </div>
+    </div>
+
+
+
+    <script>
+      // vamos apresentar dois tipos de gráficos
+      // se não houver nenhum jogador selecionado
+      // mostramos um pie chart com a quantidade de
+
+      var gameStatsTime, gameStatsRepeatedFlips, gameStatsCreated;
+
+      async function getGamesStats() {
+        // return an array of memory game time and repeatedFlips
+        console.log("getGamesStats()");
+        let M4G_string = localStorage.getItem("M4G");
+        if (!M4G_string){
+          return null;
+        }
+        let gameSize = 12;
+
+        switch(true){
+
+        }
+        
+        let M4G_json = JSON.parse(M4G_string);
+        M4G_json = M4G_json.reverse().
+        filter(game => game.game == "memoria");
+
+       
+
+        gameStatsTime = M4G_json.
+        map(game => game.time);
+
+        gameStatsRepeatedFlips = M4G_json.
+        map(game => game.repeatedFlips);
+
+        gameStatsCreated = M4G_json.
+        map(game => [new Date(game.created).toLocaleDateString(), new Date(game.created).toLocaleTimeString()] );
+
+        playersNames = [].concat.apply([], M4G_json.map(game => game.player)).filter(uniqueValues);
+        
+        console.log(JSON.stringify(playersNames));
+        return playersNames;
+      }
+
+
+      getGamesStats();
+
+      // var xValues = ["Italy", "France", "Spain", "USA", "Argentina"];
+      // var yValues = [55, 49, 44, 24, 15];
+      
+      var datasets = [
+        {
+          label: 'Time',
+          data: gameStatsTime,
+          backgroundColor: 'blue',
+          borderColor: 'lightblue',
+          fill: false,
+          lineTension: 0,
+          radius: 5,
+        },
+        {
+          label: 'Flips',
+          data: gameStatsRepeatedFlips,
+          backgroundColor: 'green',
+          borderColor: 'lightgreen',
+          fill: false,
+          lineTension: 0,
+          radius: 5,
+        },
+      ]; 
+/*
+      var barColors = [
+        "#b91d47",
+        "#00aba9",
+        "#2b5797",
+        "#e8c3b9",
+        "#1e7145"
+      ];
+*/
+      // setTimeout(createChart, 1000); // por alguma razão demora a carregar o chart.js do cdn
+      // damos algum tempo antes de evocar a criação do chart
+      
+      function createChart(){
+        chart = new Chart("memoria-chart", {
+        type: "line",
+        data: {
+          labels: gameStatsCreated,
+          datasets: datasets
+        },
+        options: {
+          title: {
+            display: true,
+            text: "Memória"
+          }
+        }
+      });
+      }
+
+      // ==================================================================================
+      // pie
+      var pieChartPlayersNames;
+      var pieChartPlayersNamesCount = [];
+      var pieChartPlayersNamesKey = [];
+
+      function findPlayer(player) {
+        return age > 18;
+      }
+
+      function getGamesPerPlayer(){
+        // popula os arrays de jogadores e e de quantidade de jogos 
+        let M4G_string = localStorage.getItem("M4G");
+        let M4G_json = JSON.parse(M4G_string);
+        pieChartPlayersNames = M4G_json
+          .filter(game => game.game == "memoria")
+          ;
+        pieChartPlayersNames = [].concat.apply([], pieChartPlayersNames.map(game => game.player));
+        console.log(pieChartPlayersNames);
+
+        for (let index = 0; index < pieChartPlayersNames.length; index++) {
+          const element = pieChartPlayersNames[index];
+
+          if (pieChartPlayersNamesKey.indexOf(element) > -1)
+            pieChartPlayersNamesCount[pieChartPlayersNamesKey.indexOf(element)] += 1;
+          else 
+          {
+            pieChartPlayersNamesKey.push(element);
+            pieChartPlayersNamesCount.push(1);
+          }
+        }
+
+        console.log(pieChartPlayersNamesKey);
+        console.log(pieChartPlayersNamesCount);
+      }
+
+      getGamesPerPlayer();
+      setTimeout(createPieChart, 1000);
+
+      $(document).on('change','#select-player',function(){
+        chart.destroy();
+        setTimeout(createChart, 1000);
+      });
+
+
+      var barColors = [
+        "#b91d47",
+        "#00aba9",
+        "#2b5797",
+        "#e8c3b9",
+        "#1e7145"
+      ];
+
+      var chart;
+      function createPieChart(){
+        // este gráfico destina-se a mostrar a quantidade de jogo por utilizador
+        chart = new Chart("memoria-chart", {
+        type: "pie",
+        data: {
+          labels: pieChartPlayersNamesKey,
+          datasets: [{ 
+            backgroundColor: barColors,
+            data: pieChartPlayersNamesCount 
+          }]
+        },
+        options: {
+          title: {
+            display: true,
+            text: "Memória"
+          }
+        }
+      });
+      }
+      </script>
+  </div>
+
+  <div style="display: none" id="game-grid" class="grid mt-5">
+  </div>
+
+  <div>
+    <br>
+    <br>
+    <br>
+  </div>
+
+</body>
+
+</html>
