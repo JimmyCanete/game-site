@@ -1,7 +1,4 @@
-![M4G](https://github.com/carmanoli/M4Project/blob/main/images/M4G.png)
-
-
-[M4G](https://carmanoli.github.io/M4Project/)
+![M4G](https://github.com/JimmyCanete/game-site/blob/main/images/M4G.png)
 
 # M4G - Memória, Quatro, Galo
 
@@ -10,10 +7,6 @@ Projeto do módulo 4 do UpSkill
 ## Ideias
 
 ### Ideias Gerais
-<ul>
-  <li>Criar um ficheiro JSON que contem os jogadores registrados com username, password, vitorias, derrotas e empate</li>
-   <li> Criar um perfil de jogador onde mostra o win rate </li>
-</ul>
 
 ---
 ### Jogo Da Memória
